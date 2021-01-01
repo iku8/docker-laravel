@@ -1,0 +1,29 @@
+version: "3"
+services:
+
+  mysql:
+    build:
+      context: ./container/mysql
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-myapp}
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user!
+      MYSQL_ROOT_PASSWORD: root!
+      TZ: "Asia/Tokyo"
+    ports:
+      - ${MYSQL_PORT:-3306}:3306
+    volumes:
+      - mysql-data-store:/var/lib/mysql
+      - ./mysql/logs:/var/log/mysql
+      - ./container/mysql/init.d:/docker-entrypoint-initdb.d
+      - ./container/mysql/conf.d:/etc/mysql/conf.d
+
+  composer:
+    image: composer
+    command: "composer install"
+    volumes:
+      - ${PATH_TO_COMPOSER_JSON:-./}:/app
+
+volumes:
+  mysql-data-store:
